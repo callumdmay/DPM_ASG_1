@@ -31,19 +31,15 @@ public class Lab1 {
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-	private static final EV3LargeRegulatedMotor USControlMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	
 // Main entry point - instantiate objects used and set up sensor
 	
 	public static void main(String [] args) {
-		
 		int option = 0;
 		Printer.printMainMenu();						// Set up the display on the EV3 screen
 		while (option == 0)								// and wait for a button press.  The button
 			option = Button.waitForAnyPress();			// ID (option) determines what type of control to use
-		
 		// Setup controller objects
-		USControlMotor.rotateTo(0);
 		BangBangController bangbang = new BangBangController(leftMotor, rightMotor,
 															 bandCenter, bandWidth, motorLow, motorHigh);
 		PController p = new PController(leftMotor, rightMotor, bandCenter, bandWidth);
