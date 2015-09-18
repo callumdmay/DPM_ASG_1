@@ -19,8 +19,8 @@ public class PController implements UltrasonicController {
 		this.rightMotor = rightMotor;
 		leftMotor.setSpeed(motorStraight);					// Initalize motor rolling forward
 		rightMotor.setSpeed(motorStraight);
-		leftMotor.forward();
-		rightMotor.forward();
+		//leftMotor.forward();
+		//rightMotor.forward();
 		filterControl = 0;
 	}
 	
