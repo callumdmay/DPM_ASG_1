@@ -50,5 +50,15 @@ public class PController implements UltrasonicController {
 	public int readUSDistance() {
 		return this.distance;
 	}
+	
+	@Override
+	public void reverse(){
+		
+		leftMotor.stop();
+		rightMotor.stop();
+		
+		leftMotor.rotate(-360,true);
+		rightMotor.rotate((-360));
+	}
 
 }

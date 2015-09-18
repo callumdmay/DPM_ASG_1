@@ -17,7 +17,7 @@ public class Lab1 {
 
 // Parameters: adjust these for desired performance
 
-	private static final int bandCenter = 20;			// Offset from the wall (cm)
+	private static final int bandCenter = 30;			// Offset from the wall (cm)
 	private static final int bandWidth = 3;				// Width of dead band (cm)
 	private static final int motorLow = 100;			// Speed of slower rotating wheel (deg/sec)
 	private static final int motorHigh = 200;			// Speed of the faster rotating wheel (deg/seec)
@@ -31,6 +31,7 @@ public class Lab1 {
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	private static final Port touchPort = LocalEV3.get().getPort("S2");
 	
 // Main entry point - instantiate objects used and set up sensor
 	
@@ -52,7 +53,16 @@ public class Lab1 {
 		// 3. Create a sample provider instance for the above and initialize operating mode
 		// 4. Create a buffer for the sensor data
 		
+		
+		
 		@SuppressWarnings("resource")							    // Because we don't bother to close this resource
+		
+		
+		SensorModes touchSensor = new EV3TouchSensor(touchPort);
+		SampleProvider touchSampler = touchSensor.getMode("Touch");
+		float[] touchData = new float[touchSampler.sampleSize()];
+		
+		
 		SensorModes usSensor = new EV3UltrasonicSensor(usPort);		// usSensor is the instance
 		SampleProvider usDistance = usSensor.getMode("Distance");	// usDistance provides samples from this instance
 		float[] usData = new float[usDistance.sampleSize()];		// usData is the buffer in which data are returned
@@ -63,6 +73,8 @@ public class Lab1 {
 		// Setup Ultrasonic Poller									// This thread samples the US and invokes
 		UltrasonicPoller usPoller = null;							// the selected controller on each cycle
 				
+		//Setup touch poller
+		TouchSensorPoller touchPoller =null;
 		// Depending on which button was pressed, invoke the US poller and printer with the
 		// appropriate constructor.
 		
@@ -70,10 +82,12 @@ public class Lab1 {
 		case Button.ID_LEFT:										// Bang-bang control selected
 			usPoller = new UltrasonicPoller(usDistance, usData, bangbang);
 			printer = new Printer(option, bangbang);
+			touchPoller = new TouchSensorPoller(touchSampler, touchData, bangbang);
 			break;
 		case Button.ID_RIGHT:										// Proportional control selected
 			usPoller = new UltrasonicPoller(usDistance, usData, p);
 			printer = new Printer(option, p);
+			touchPoller = new TouchSensorPoller(touchSampler, touchData, p);
 			break;
 		default:
 			System.out.println("Error - invalid button");			// None of the above - abort
@@ -81,8 +95,8 @@ public class Lab1 {
 			break;
 		}
 		
-		// Start the poller and printer threads
-		
+		// Start the pollers and printer threads
+		touchPoller.start();
 		usPoller.start();
 		printer.start();
 		

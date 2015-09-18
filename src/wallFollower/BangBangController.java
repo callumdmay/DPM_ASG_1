@@ -10,9 +10,11 @@ public class BangBangController implements UltrasonicController{
 	private final int FILTER_OUT = 20;
 	private int distance;
 	private int filterControl;
+	private boolean isReversing;
 	private ArrayList<Integer> distanceArray = new ArrayList<Integer>();
 	private int dynamicDistanceError = 5;
 	private int currentDistanceAverage = 0;
+
 	
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	
@@ -31,8 +33,11 @@ public class BangBangController implements UltrasonicController{
 	@Override
 	public void processUSData(int pDistance) {
 		
+		//Do not move when reversing
+		if(isReversing)
+			return;
+		
 		// rudimentary filter - toss out invalid samples corresponding to null signal.
-
 		if (pDistance >= 255 && filterControl < FILTER_OUT) {
 			// bad value, do not set the distance var, however do increment the filter value
 			filterControl ++;
@@ -80,7 +85,18 @@ public class BangBangController implements UltrasonicController{
 		return this.distance;
 	}
 	
-	
+	@Override
+	public void reverse(){
+		isReversing=true;
+		leftMotor.stop();
+		rightMotor.stop(); 
+		leftMotor.setSpeed(motorHigh);
+		rightMotor.setSpeed(motorHigh);
+		leftMotor.rotate(-360,true);
+		rightMotor.rotate((-360));
+		isReversing=false;
+	}
+
 	//This method filters out sporadic jumps in the distance
 	//It keeps a running average of the current distance, and filters
 	//out values that are much larger than the dynamic error.
